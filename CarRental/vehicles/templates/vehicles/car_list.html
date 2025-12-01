@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">أسطولنا من السيارات المميزة</h2>
+
+    <!-- شريط بحث بسيط (اختياري) -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-6">
+            <form method="GET" class="d-flex">
+                <input class="form-control me-2 ms-2" type="search" placeholder="ابحث عن اسم السيارة..." aria-label="Search" name="q">
+                <button class="btn btn-primary" type="submit">بحث</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- شبكة عرض السيارات -->
+    <div class="row">
+        {% for car in cars %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <!-- صورة السيارة -->
+                    <div style="height: 200px; overflow: hidden; background-color: #f8f9fa;" class="d-flex align-items-center justify-content-center">
+                        {% if car.image %}
+                            <img src="{{ car.image.url }}" class="card-img-top" alt="{{ car.name }}" style="object-fit: cover; height: 100%; width: 100%;">
+                        {% else %}
+                            <span class="text-muted">لا توجد صورة</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="card-title fw-bold mb-0">{{ car.name }}</h5>
+                            <span class="badge bg-secondary">{{ car.model_year }}</span>
+                        </div>
+                        
+                        <p class="card-text text-muted small">
+                            {{ car.get_transmission_display }} | {{ car.get_fuel_type_display }}
+                        </p>
+                        
+                        <h4 class="text-primary fw-bold">{{ car.daily_price }} <small class="fs-6 text-muted">ريال / يوم</small></h4>
+                    </div>
+
+                    <div class="card-footer bg-white border-0 pb-3">
+                        {% if car.is_available %}
+                            <a href="{% url 'vehicles:car_detail' car.id %}" class="btn btn-dark w-100">عرض التفاصيل وحجز</a>
+                        {% else %}
+                            <button class="btn btn-secondary w-100" disabled>غير متاحة حالياً</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12 text-center py-5">
+                <h3 class="text-muted">لا توجد سيارات متاحة حالياً للعرض.</h3>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
