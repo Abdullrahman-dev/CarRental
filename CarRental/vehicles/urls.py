@@ -1,4 +1,5 @@
 from django.urls import path
+
 from . import views 
 from django.conf import settings
 
@@ -14,4 +15,5 @@ urlpatterns = [
     # رابط تفاصيل السيارة: يستقبل رقم السيارة (id)
     # مثال: www.example.com/cars/5/
     path('<int:pk>/', views.car_detail, name='car_detail'),
+
 ]
