@@ -3,16 +3,14 @@
 
 {% block content %}
 <div class="container mt-5">
-    <!-- زر العودة -->
     <a href="{% url 'vehicles:car_list' %}" class="btn btn-outline-secondary mb-4">
         &rarr; العودة للقائمة
     </a>
 
     <div class="row bg-white shadow-sm rounded p-4">
-        <!-- القسم الأيمن: صورة السيارة -->
         <div class="col-md-6 mb-4 mb-md-0">
             {% if car.image %}
-                <img src="{{ car.image.url }}" class="img-fluid rounded w-100 shadow-sm" alt="{{ car.name }}">
+                <img src="{{ car.image.url }}" class="img-fluid rounded w-100 shadow-sm" alt="{{ car.brand }}">
             {% else %}
                 <div class="bg-light d-flex align-items-center justify-content-center rounded" style="height: 400px;">
                     <span class="text-muted">لا توجد صورة متوفرة</span>
@@ -20,10 +18,14 @@
             {% endif %}
         </div>
 
-        <!-- القسم الأيسر: التفاصيل والإجراءات -->
         <div class="col-md-6">
-            <h1 class="display-5 fw-bold text-dark">{{ car.name }} <span class="text-muted fs-4">({{ car.model_year }})</span></h1>
+            <!-- ✅ التعديل الجوهري هنا: استبدال car.name بـ car.brand و car.model_name -->
+            <h1 class="display-5 fw-bold text-dark">
+                {{ car.brand }} <span class="text-muted fs-4">({{ car.model_name }})</span>
+            </h1>
             
+            <p class="lead text-muted mt-2">{{ car.description }}</p>
+
             <div class="my-3">
                 {% if car.is_available %}
                     <span class="badge bg-success fs-6">متاحة للإيجار</span>
@@ -41,6 +43,7 @@
                 <div class="col-6">
                     <div class="p-3 border rounded bg-light">
                         <small class="text-muted d-block">ناقل الحركة</small>
+                        <!-- تأكد أن الأسماء هنا تطابق الموديل الجديد -->
                         <strong>{{ car.get_transmission_display }}</strong>
                     </div>
                 </div>
@@ -64,11 +67,9 @@
                 </div>
             </div>
 
-            <!-- زر الحجز -->
             {% if car.is_available %}
-                <!-- ملاحظة: افترضنا أن اسم الرابط للحجز هو create_booking في تطبيق bookings -->
-                <!-- تأكد من تعديل الرابط أدناه ليطابق ما سيكتبه زميلك المسؤول عن الحجوزات -->
-                <a href="{% url 'bookings:create_booking' car.id %}" class="btn btn-primary btn-lg w-100 py-3 fw-bold shadow">
+                <!-- تأكد أن هذا الرابط صحيح، إذا لم تنشئ تطبيق bookings بعد، ضعه # مؤقتاً -->
+                <a href="#" class="btn btn-primary btn-lg w-100 py-3 fw-bold shadow">
                     احجز هذه السيارة الآن
                 </a>
             {% else %}

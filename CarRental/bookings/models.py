@@ -52,7 +52,7 @@ class Booking(models.Model):
         verbose_name = "حجز"
         verbose_name_plural = "الحجوزات"
 
-    def str(self):
+    def __str__(self):
         return f"Booking #{self.id} - {self.user} - {self.car}"
 
     def clean(self):

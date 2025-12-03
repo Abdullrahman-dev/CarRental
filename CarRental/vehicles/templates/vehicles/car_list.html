@@ -5,25 +5,22 @@
 <div class="container mt-5">
     <h2 class="text-center mb-4">أسطولنا من السيارات المميزة</h2>
 
-    <!-- شريط بحث بسيط (اختياري) -->
     <div class="row justify-content-center mb-5">
         <div class="col-md-6">
             <form method="GET" class="d-flex">
-                <input class="form-control me-2 ms-2" type="search" placeholder="ابحث عن اسم السيارة..." aria-label="Search" name="q">
+                <input class="form-control me-2 ms-2" type="search" placeholder="ابحث عن اسم السيارة..." aria-label="Search" name="q" value="{{ search_query }}">
                 <button class="btn btn-primary" type="submit">بحث</button>
             </form>
         </div>
     </div>
 
-    <!-- شبكة عرض السيارات -->
     <div class="row">
         {% for car in cars %}
             <div class="col-md-4 mb-4">
                 <div class="card h-100 shadow-sm border-0">
-                    <!-- صورة السيارة -->
                     <div style="height: 200px; overflow: hidden; background-color: #f8f9fa;" class="d-flex align-items-center justify-content-center">
                         {% if car.image %}
-                            <img src="{{ car.image.url }}" class="card-img-top" alt="{{ car.name }}" style="object-fit: cover; height: 100%; width: 100%;">
+                            <img src="{{ car.image.url }}" class="card-img-top" alt="{{ car.brand }}" style="object-fit: cover; height: 100%; width: 100%;">
                         {% else %}
                             <span class="text-muted">لا توجد صورة</span>
                         {% endif %}
@@ -31,8 +28,9 @@
                     
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h5 class="card-title fw-bold mb-0">{{ car.name }}</h5>
-                            <span class="badge bg-secondary">{{ car.model_year }}</span>
+                            <!-- ✅ التعديل هنا: استخدمنا brand و model_name بدلاً من name -->
+                            <h5 class="card-title fw-bold mb-0">{{ car.brand }} {{ car.model_name }}</h5>
+                            <!-- يمكنك إضافة الموديل هنا إذا كان حقلاً منفصلاً، أو الاعتماد على model_name -->
                         </div>
                         
                         <p class="card-text text-muted small">
