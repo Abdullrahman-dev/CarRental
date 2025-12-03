@@ -1,0 +1,77 @@
+<!-- من هنا نضيف ونعدل ياخوان-->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">{{ title }}</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- عرض الحقول بشكل منظم -->
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">الشركة المصنعة</label>
+                                {{ form.brand }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">الموديل</label>
+                                {{ form.model_name }}
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">الوصف</label>
+                                {{ form.description }}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">السعر اليومي</label>
+                                {{ form.daily_price }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">رقم اللوحة</label>
+                                {{ form.plate_number }}
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">ناقل الحركة</label>
+                                {{ form.transmission }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">نوع الوقود</label>
+                                {{ form.fuel_type }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">اللون</label>
+                                {{ form.color }}
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">صورة السيارة</label>
+                                {{ form.image }}
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-check form-switch">
+                                    {{ form.is_available }}
+                                    <label class="form-check-label">متاحة للإيجار؟</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'vehicles:manage_cars' %}" class="btn btn-secondary">إلغاء</a>
+                            <button type="submit" class="btn btn-success px-5">حفظ البيانات</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

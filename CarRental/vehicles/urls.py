@@ -1,5 +1,4 @@
 from django.urls import path
-
 from . import views 
 from django.conf import settings
 
@@ -16,4 +15,9 @@ urlpatterns = [
     # مثال: www.example.com/cars/5/
     path('<int:pk>/', views.car_detail, name='car_detail'),
 
+    # --- روابط لوحة الإدارة (للأدمن) ---
+    path('manage/', views.manage_cars, name='manage_cars'),
+    path('add/', views.add_car, name='add_car'),
+    path('edit/<int:pk>/', views.edit_car, name='edit_car'),
+    path('delete/<int:pk>/', views.delete_car, name='delete_car'),
 ]
