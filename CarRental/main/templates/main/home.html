@@ -4,13 +4,6 @@
 
 {% block extra_head %}
 <style>
-.hero-main {
-    height: 90vh;
-    background-image: url("{% static 'images/car.jpg' %}");
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: cover;
-} 
 .featured-cars-section .card {
     transition: transform 0.2s;
 }
@@ -27,29 +20,45 @@
     height: 100%; 
     width: 100%;
 }
+.carousel-caption h5 {
+    font-size: 3rem;
+    font-weight: 700;  
+    margin-bottom: 1.5rem;
+}
+.carousel-caption p {
+    font-size: 1.6rem;
+    font-weight: 500;
+}
 </style>
 {% endblock %}
 
 {% block content %}
 
     <section class="hero-main d-flex align-items-center justify-content-center text-white">
-        <div class="container text-center text-md-start hero-content">
-            <div class="d-flex justify-content-center justify-content-md-start mb-4">
-                <a href="#" class="text-white mx-2"><i class="fas fa-heart"></i></a>
-                <a href="{% url 'vehicles:car_list' %}" class="text-white mx-2"><i class="fas fa-car"></i></a>
-                <a href="{% url 'main:contact' %}" class="text-white mx-2"><i class="fas fa-comment"></i></a>
+        <div id="carouselExampleSlidesOnly" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img src="{% static "images/hero11.png" %}" class="d-block w-100" alt="...">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5>Discover Your Next Journey</h5>
+                        <p>A wide range of luxury and economy cars await you. Choose your vehicle and start your adventure today!</p>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <img src="{% static "images/car.jpg" %}" class="d-block w-100" alt="...">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5>Easy Booking in Three Steps</h5>
+                        <p>No more complicated procedures. Book your favorite car online and pick it up with absolute ease.</p>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <img src="{% static "images/hero1.png" %}" class="d-block w-100" alt="...">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5>Best Prices, Maximum Comfort</h5>
+                        <p>Enjoy our best daily and weekly offers, supported by 24/7 customer service to ensure your comfort.</p>
+                    </div>
+                </div>
             </div>
-            <h1 class="display-1 fw-bold mb-3">Car Rental</h1>
-            <div class="d-flex justify-content-center justify-content-md-start small text-uppercase">
-                <span class="mx-2">Jeep</span>
-                <span class="mx-2">Audi</span>
-                <span class="mx-2">BMW</span>
-            </div>
-            {% comment %}             <div class="d-flex justify-content-center justify-content-md-start mb-4">
-                <img src="{% static 'images/jeep_logo.png' %}" alt="Jeep" class="img-fluid mx-2 brand-logo-small jeep-logo">
-                <img src="{% static 'images/audi_logo.png' %}" alt="Audi" class="img-fluid mx-2 brand-logo-small audi-logo">
-                <img src="{% static 'images/bmw_logo.png' %}" alt="BMW" class="img-fluid mx-2 brand-logo-small">
-            </div> {% endcomment %}
         </div>
     </section>
 
