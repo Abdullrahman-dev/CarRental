@@ -8,10 +8,11 @@ from vehicles.models import Car
 # Create your views here.
 
 
+def auth_page(request):
+    return render(request, "main/auth_page.html")
+
 def is_admin_or_staff(user):
     return user.is_authenticated and user.is_staff
-
-
 
 def home(request):
 

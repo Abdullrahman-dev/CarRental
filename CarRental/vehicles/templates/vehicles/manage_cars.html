@@ -17,6 +17,7 @@
                     <tr>
                         <th>السيارة</th>
                         <th>الموديل</th>
+                        <th>الشركه المؤجره</th>
                         <th>السعر</th>
                         <th>الحالة</th>
                         <th>الإجراءات</th>
@@ -27,6 +28,7 @@
                     <tr>
                         <td class="align-middle fw-bold">{{ car.brand }}</td>
                         <td class="align-middle">{{ car.model_name }}</td>
+                        <td class="align-middle">{{ car.rental_company.name }}</td>
                         <td class="align-middle">{{ car.daily_price }} ريال</td>
                         <td class="align-middle">
                             {% if car.is_available %}

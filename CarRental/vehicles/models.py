@@ -1,6 +1,21 @@
 from django.db import models
+from django.conf import settings
+from django.core.validators import MinValueValidator, MaxValueValidator
+
+class RentalCompany(models.Model):
+    name = models.CharField(max_length=100, unique=True, verbose_name="اسم شركة التأجير")
+    
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "شركة تأجير"
+        verbose_name_plural = "شركات التأجير"
 
 class Car(models.Model):
+
+    rental_company = models.ForeignKey(RentalCompany,on_delete=models.CASCADE,related_name='cars',verbose_name="شركة التأجير")
+
     # --- البيانات الأساسية ---
     brand = models.CharField(max_length=50, verbose_name="الشركة المصنعة")
     model_name = models.CharField(max_length=50, verbose_name="الموديل")
@@ -23,3 +38,32 @@ class Car(models.Model):
 
     def __str__(self):
         return f"{self.brand} {self.model_name}"
+    
+class CarReview(models.Model):
+    car = models.ForeignKey(
+        Car,
+        on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name="السيارة"
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='car_reviews',
+        verbose_name="العميل"
+    )
+    rating = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        verbose_name="التقييم (1-5)"
+    )
+    comment = models.TextField(
+        blank=True,
+        verbose_name="التعليق"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('car', 'user') 
+        ordering = ['-created_at']
+        verbose_name = "تقييم/تعليق سيارة"
+        verbose_name_plural = "تقييمات/تعليقات السيارات"
