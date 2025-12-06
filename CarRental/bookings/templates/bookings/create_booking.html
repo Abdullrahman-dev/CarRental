@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block content %}
+<<<<<<< HEAD
 <div class="container my-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
@@ -47,5 +48,81 @@
             </div>
         </div>
     </div>
+=======
+<div class="container mt-5 pt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0">Complete Your Booking</h4>
+                </div>
+                <div class="card-body">
+                    
+                    <!-- 
+                        📝 توثيق التعديل الجديد: قسم عرض الأخطاء العامة (Non-field Errors)
+                        الهدف: عرض رسائل الخطأ القادمة من دالة clean() في forms.py
+                        مثل: "السيارة محجوزة بالفعل في هذه الفترة" أو "تاريخ النهاية قبل البداية"
+                    -->
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger d-flex align-items-center" role="alert">
+                        <!-- أيقونة تنبيه لجذب انتباه المستخدم -->
+                        <i class="fa-solid fa-circle-exclamation me-2"></i>
+                        <div>
+                            <!-- حلقة تكرارية لعرض جميع الأخطاء العامة إن وجدت -->
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    <!-- نهاية قسم الأخطاء العامة -->
+
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            {% if car.image %}
+                            <img src="{{ car.image.url }}" class="img-fluid rounded" alt="{{ car.model_name }}">
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <h3>{{ car.brand }} {{ car.model_name }}</h3>
+                            <p class="text-dark fw-bold mb-0">
+                                <i class="fas fa-building text-primary me-2"></i> مقدمة من: 
+                                <span class="text-secondary">{{ car.rental_company.name }}</span>
+                            </p>
+                            <h5 class="text-primary">${{ car.daily_price }} / Day</h5>
+                            <p class="text-muted">{{ car.description|truncatewords:20 }}</p>
+                        </div>
+                    </div>
+                    
+                    <hr>
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Pick-up Date</label>
+                                {{ form.start_date }}
+                                <!-- عرض أخطاء الحقل الخاص بتاريخ البدء -->
+                                {% if form.start_date.errors %}
+                                    <div class="text-danger small">{{ form.start_date.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Return Date</label>
+                                {{ form.end_date }}
+                                <!-- عرض أخطاء الحقل الخاص بتاريخ الانتهاء -->
+                                {% if form.end_date.errors %}
+                                    <div class="text-danger small">{{ form.end_date.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100 btn-lg mt-3">Confirm Booking</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+>>>>>>> ce41edb584b3b4c4b33624d1ff8c0026e0472a2f
 </div>
 {% endblock content %}

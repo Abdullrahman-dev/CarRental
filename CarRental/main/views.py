@@ -8,16 +8,17 @@ from vehicles.models import Car
 # Create your views here.
 
 
+def auth_page(request):
+    return render(request, "main/auth_page.html")
+
 def is_admin_or_staff(user):
     return user.is_authenticated and user.is_staff
-
-
 
 def home(request):
 
     try:
-        cars = Car.objects.all().order_by('-created_at')[:6]
-        expensive_cars = Car.objects.all().order_by('-daily_price')[:6]
+        cars = Car.objects.all().order_by('-created_at')[:4]
+        expensive_cars = Car.objects.all().order_by('-daily_price')[:8]
     except Exception:
         cars = []
 

@@ -3,23 +3,32 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
+<<<<<<< HEAD
 from django.db.models import Sum
 from django.urls import reverse 
 from .models import Booking # 💡 هذا المودل الآن يحتوي على دالة calculate_prices()
+=======
+from django.db.models import Sum, Q
+from django.urls import reverse # 💡 هذا الاستيراد مهم لاستخدام reverse()
+from .models import Booking
+>>>>>>> ce41edb584b3b4c4b33624d1ff8c0026e0472a2f
 from .forms import BookingForm
 from vehicles.models import Car 
 # 💡 لا تحتاج لاستيراد logging هنا، فهو في payments/views.py
+
 
 @login_required(login_url='accounts:login')
 def create_booking(request, car_id):
     car = get_object_or_404(Car, pk=car_id)
 
     if request.method == 'POST':
-        form = BookingForm(request.POST)
+        # ✅ نرسل car.id للفورم لكي يتمكن من فحص التواريخ والتحقق من التوفر
+        form = BookingForm(request.POST, car_id=car.id)
         if form.is_valid():
             booking = form.save(commit=False)
             booking.user = request.user
             booking.car = car
+<<<<<<< HEAD
             
             # 🛑 1. استدعاء دالة حساب الأسعار والمدة صراحةً
             # هذا يضمن أن الحقول total_price و duration_days مُحسَبة الآن
@@ -27,12 +36,19 @@ def create_booking(request, car_id):
             
             # 🛑 2. الحفظ بعد الحساب (save() ستعيد استدعاء calculate_prices للتأكيد)
             booking.save() 
+=======
+
+            booking.save() # السعر يحسب تلقائياً في الموديل
+            messages.success(request, "تم حجز السيارة بنجاح! بانتظار الموافقة.")
+            return redirect('bookings:booking_success')
+>>>>>>> ce41edb584b3b4c4b33624d1ff8c0026e0472a2f
 
             # 3. التوجيه إلى صفحة الدفع ببيانات حجز كاملة ومحفوظة
             return redirect(reverse('payments:initiate_payment', args=[booking.id]))
 
     else:
-        form = BookingForm()
+        # ✅ نرسل car.id عند فتح الصفحة لأول مرة أيضاً
+        form = BookingForm(car_id=car.id)
 
     return render(request, 'bookings/create_booking.html', {
         'form': form,
@@ -44,6 +60,7 @@ def create_booking(request, car_id):
 def booking_success(request):
     return render(request, 'bookings/booking_success.html')
 
+<<<<<<< HEAD
 # 3. لوحة تحكم المراجع (كود سليم)
 @login_required
 @user_passes_test(lambda u: u.is_staff or u.is_superuser) 
@@ -52,6 +69,47 @@ def reviewer_dashboard(request):
     
     # ... (بقية الدالة سليمة) ...
     
+=======
+
+@login_required
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+def reviewer_dashboard(request):
+    bookings = Booking.objects.all().order_by('-created_at')
+    
+    if request.method == "POST":
+        booking_id = request.POST.get('booking_id')
+        action = request.POST.get('action')
+        booking = get_object_or_404(Booking, id=booking_id)
+        
+        if action == 'approve':
+            # 1. الموافقة على الحجز الحالي
+            booking.status = 'CONFIRMED'
+            booking.save()
+            messages.success(request, f'Booking #{booking.id} Approved ✅')
+            
+            # 2. 🔥 إلغاء الحجوزات المتعارضة تلقائياً (Conflict Resolution)
+            # نبحث عن أي حجوزات أخرى (Pending) لنفس السيارة تتقاطع مع تواريخ هذا الحجز
+            conflicting_bookings = Booking.objects.filter(
+                car=booking.car,
+                status='PENDING',
+                start_date__lte=booking.end_date,
+                end_date__gte=booking.start_date
+            ).exclude(id=booking.id)
+
+            count = conflicting_bookings.count()
+            if count > 0:
+                conflicting_bookings.update(status='CANCELLED')
+                messages.warning(request, f'⚠️ تم إلغاء {count} طلبات معلقة أخرى تلقائياً لمنع التعارض في التواريخ.')
+
+        elif action == 'reject':
+            booking.status = 'CANCELLED'
+            booking.save()
+            messages.warning(request, f'Booking #{booking.id} Rejected ❌')
+        
+        return redirect('bookings:reviewer_dashboard')
+
+
+>>>>>>> ce41edb584b3b4c4b33624d1ff8c0026e0472a2f
     total_revenue = bookings.filter(status='CONFIRMED').aggregate(Sum('total_price'))['total_price__sum'] or 0
 
     stats = {
@@ -63,7 +121,7 @@ def reviewer_dashboard(request):
 
     context = {
         'bookings': bookings,
-        'stats': stats 
+        'stats': stats
     }
 
     return render(request, 'bookings/reviewer_dashboard.html', context)

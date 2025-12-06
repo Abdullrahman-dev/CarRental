@@ -3,80 +3,149 @@
 
 {% block content %}
 <div class="container mt-5 pt-5">
+    
     <a href="{% url 'vehicles:car_list' %}" class="btn btn-outline-secondary mb-4">
-        &rarr; العودة للقائمة
+        <i class="fas fa-arrow-right me-2"></i> العودة للقائمة
     </a>
 
-    <div class="row bg-white shadow-sm rounded p-4">
-        <div class="col-md-6 mb-4 mb-md-0">
-            {% if car.image %}
-                <img src="{{ car.image.url }}" class="img-fluid rounded w-100 shadow-sm" alt="{{ car.brand }}">
-            {% else %}
+    <div class="row bg-white shadow-lg rounded p-4"> <div class="col-md-7 mb-4 mb-md-0"> {% if car.image %}
+                <img src="{{ car.image.url }}" 
+                     alt="{{ car.brand }} {{ car.model_name }}" 
+                     class="img-fluid rounded w-100 shadow-sm" 
+                     style="max-height: 500px; object-fit: cover;"> {% else %}
                 <div class="bg-light d-flex align-items-center justify-content-center rounded" style="height: 400px;">
-                    <span class="text-muted">لا توجد صورة متوفرة</span>
+                    <span class="text-muted"><i class="fas fa-camera fa-2x"></i><br> لا توجد صورة متوفرة</span>
                 </div>
             {% endif %}
         </div>
 
-        <div class="col-md-6">
-            <!-- ✅ التعديل الجوهري هنا: استبدال car.name بـ car.brand و car.model_name -->
-            <h1 class="display-5 fw-bold text-dark">
-                {{ car.brand }} <span class="text-muted fs-4">({{ car.model_name }})</span>
+        <div class="col-md-5">
+            <h1 class="display-6 fw-bold text-dark">
+                {{ car.brand }} <span class="text-muted fs-5">({{ car.model_name }})</span>
             </h1>
             
-            <p class="lead text-muted mt-2">{{ car.description }}</p>
-
-            <div class="my-3">
-                {% if car.is_available %}
-                    <span class="badge bg-success fs-6">متاحة للإيجار</span>
-                {% else %}
-                    <span class="badge bg-danger fs-6">غير متاحة</span>
-                {% endif %}
+            <div class="d-flex align-items-center justify-content-between border-bottom pb-3 mb-3">
+                <p class="text-dark fw-bold mb-0">
+                    <i class="fas fa-building text-primary me-2"></i> مقدمة من: 
+                    <span class="text-secondary">{{ car.rental_company.name }}</span>
+                </p>
+                <h2 class="text-success fw-bolder mb-0">
+                    {{ car.daily_price }} <small class="fs-6 text-muted">ر.س / يوم</small>
+                </h2>
             </div>
 
-            <h2 class="text-primary fw-bold mb-4">{{ car.daily_price }} <span class="fs-5 text-dark">ريال سعودي / يومياً</span></h2>
+            <h5 class="fw-bold mt-3 mb-2">وصف السيارة</h5>
+            <p class="lead text-muted">{{ car.description }}</p>
 
-            <hr>
+            <h5 class="fw-bold mt-4 mb-3 border-top pt-3">المواصفات الرئيسية</h5>
+            <div class="row g-2">
+                
+                <div class="col-6">
+                    <div class="p-3 border rounded bg-light d-flex align-items-center">
+                        <i class="fas fa-cogs fa-fw me-2 text-primary"></i>
+                        <div>
+                            <small class="text-muted d-block">ناقل الحركة</small>
+                            <strong class="text-dark">{{ car.get_transmission_display }}</strong>
+                        </div>
+                    </div>
+                </div>
 
-            <h5 class="mb-3">المواصفات:</h5>
-            <div class="row g-3 mb-4">
                 <div class="col-6">
-                    <div class="p-3 border rounded bg-light">
-                        <small class="text-muted d-block">ناقل الحركة</small>
-                        <!-- تأكد أن الأسماء هنا تطابق الموديل الجديد -->
-                        <strong>{{ car.get_transmission_display }}</strong>
+                    <div class="p-3 border rounded bg-light d-flex align-items-center">
+                        <i class="fas fa-gas-pump fa-fw me-2 text-primary"></i>
+                        <div>
+                            <small class="text-muted d-block">نوع الوقود</small>
+                            <strong class="text-dark">{{ car.get_fuel_type_display }}</strong>
+                        </div>
                     </div>
                 </div>
+
                 <div class="col-6">
-                    <div class="p-3 border rounded bg-light">
-                        <small class="text-muted d-block">نوع الوقود</small>
-                        <strong>{{ car.get_fuel_type_display }}</strong>
+                    <div class="p-3 border rounded bg-light d-flex align-items-center">
+                        <i class="fas fa-palette fa-fw me-2 text-primary"></i>
+                        <div>
+                            <small class="text-muted d-block">اللون</small>
+                            <strong class="text-dark">{{ car.color }}</strong>
+                        </div>
                     </div>
                 </div>
+
                 <div class="col-6">
-                    <div class="p-3 border rounded bg-light">
-                        <small class="text-muted d-block">اللون</small>
-                        <strong>{{ car.color }}</strong>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="p-3 border rounded bg-light">
-                        <small class="text-muted d-block">رقم اللوحة</small>
-                        <strong>{{ car.plate_number }}</strong>
+                    <div class="p-3 border rounded bg-light d-flex align-items-center">
+                        <i class="fas fa-hashtag fa-fw me-2 text-primary"></i>
+                        <div>
+                            <small class="text-muted d-block">رقم اللوحة</small>
+                            <strong class="text-dark">{{ car.plate_number }}</strong>
+                        </div>
                     </div>
                 </div>
             </div>
-
+            
             {% if car.is_available %}
-                <!-- تأكد أن هذا الرابط صحيح، إذا لم تنشئ تطبيق bookings بعد، ضعه # مؤقتاً -->
-                <a href="{% url 'bookings:create_booking' car.id %}" class="btn btn-primary btn-lg w-100 py-3">
-                    احجز هذه السيارة الآن
+                <a href="{% url 'bookings:create_booking' car.id %}" class="btn btn-primary btn-lg w-100 py-3 mt-4">
+                    <i class="fas fa-calendar-alt me-2"></i> احجز هذه السيارة الآن
                 </a>
             {% else %}
-                <button class="btn btn-secondary btn-lg w-100 py-3" disabled>
-                    السيارة غير متاحة للحجز حالياً
+                <button class="btn btn-secondary btn-lg w-100 py-3 mt-4" disabled>
+                    <i class="fas fa-times-circle me-2"></i> السيارة غير متاحة للحجز حالياً
                 </button>
             {% endif %}
+        </div>
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <h3 class="mb-4">⭐️ تعليقات وتقييمات العملاء</h3>
+
+            {% if user.is_authenticated and user_can_review %}
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-light">
+                        <strong>أضف تقييمك وتعليقك</strong>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{% url 'vehicles:add_car_review' car.pk %}">
+                            {% csrf_token %}
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">تقييمك (1-5)</label>
+                                    {{ review_form.rating }}
+                                </div>
+                                <div class="col-md-8">
+                                    <label class="form-label">تعليقك (اختياري)</label>
+                                    {{ review_form.comment }}
+                                </div>
+                                <div class="col-12 text-end">
+                                    <button type="submit" class="btn btn-primary">إرسال التقييم</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            {% elif user.is_authenticated %}
+                <div class="alert alert-info">لقد قمت بتقييم هذه السيارة مسبقاً.</div>
+            {% else %}
+                <div class="alert alert-warning">يجب عليك <a href="{% url 'accounts:login' %}?next={{ request.path }}">تسجيل الدخول</a> لإضافة تقييم أو تعليق.</div>
+            {% endif %}
+
+            <div class="mt-4">
+                {% for review in reviews %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h6 class="mb-1 fw-bold">{{ review.user.first_name|default:review.user.username }}</h6>
+                            <span class="badge bg-primary">{{ review.rating }} نجوم</span>
+                        </div>
+                        <p class="small text-muted mb-2">بتاريخ: {{ review.created_at|date:"Y-m-d" }}</p>
+                        {% if review.comment %}
+                        <p class="card-text">{{ review.comment }}</p>
+                        {% else %}
+                        <p class="card-text text-muted fst-italic">لم يتم إضافة تعليق.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted text-center py-3">لا توجد تقييمات أو تعليقات حتى الآن. كن أول من يقيّم هذه السيارة!</p>
+                {% endfor %}
+            </div>
+
         </div>
     </div>
 </div>

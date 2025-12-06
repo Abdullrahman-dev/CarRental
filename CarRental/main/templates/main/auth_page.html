@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login / Sign Up{% endblock %}
+
+{% block extra_head %}
+<style>
+    :root {
+        --bs-primary: #00BFFF; /* Light Blue / Deep Sky Blue */
+        --bs-primary-rgb: 0, 191, 255;
+        --bs-light: #f5f7f9;
+    }
+    .text-primary { color: var(--bs-primary) !important; }
+    .btn-primary { 
+        --bs-btn-bg: var(--bs-primary);
+        --bs-btn-border-color: var(--bs-primary);
+        --bs-btn-hover-bg: #0099cc;
+        --bs-btn-active-bg: #0088b3;
+        --bs-btn-active-border-color: #0088b3;
+    }
+    .nav-link.active {
+        color: var(--bs-primary) !important;
+        border-bottom: 2px solid var(--bs-primary) !important;
+    }
+    .nav-link {
+        color: #6c757d;
+        border-bottom: 2px solid transparent;
+        transition: all 0.3s;
+    }
+    .card-auth {
+        max-width: 480px;
+    }
+    .btn-success {
+        background-color: #28a745 !important;
+        border-color: #28a745 !important;
+        color: #fff !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+
+            <h1 class="fw-bold mb-4 text-center">Customers & Rental Partners</h1>
+
+            <div class="card-auth bg-white shadow-lg p-5 rounded-4 mx-auto">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <ul class="nav nav-tabs justify-content-center border-0 mb-4" id="authTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active fw-bold" id="user-login-tab" data-bs-toggle="tab" data-bs-target="#user-login" type="button" role="tab" aria-controls="user-login" aria-selected="true">
+                            Customer Login
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold" id="company-login-tab" data-bs-toggle="tab" data-bs-target="#company-login" type="button" role="tab" aria-controls="company-login" aria-selected="false">
+                            Company Login
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold" id="user-signup-tab" data-bs-toggle="tab" data-bs-target="#user-signup" type="button" role="tab" aria-controls="user-signup" aria-selected="false">
+                            Sign Up
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    
+                    <div class="tab-pane fade show active" id="user-login" role="tabpanel" aria-labelledby="user-login-tab">
+                        <h5 class="text-primary mb-4">Customer Login</h5>
+                        <form method="post" action="{% url 'accounts:login' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="user_type" value="customer"> 
+                            <div class="mb-3">
+                                <label for="id_email_user" class="form-label">Email</label>
+                                <input type="email" name="email" id="id_email_user" class="form-control" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="id_password_user" class="form-label">Password</label>
+                                <input type="password" name="password" id="id_password_user" class="form-control" required>
+                            </div>
+                            
+                            <div class="text-end mb-3"><a href="#" class="small text-muted">Forgot Password?</a></div>
+                            <button type="submit" class="btn btn-primary w-100 btn-lg mt-3">
+                                <i class="fas fa-sign-in-alt me-2"></i> Login
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="tab-pane fade" id="company-login" role="tabpanel" aria-labelledby="company-login-tab">
+                        <h5 class="text-primary mb-4">Rental Company Login</h5>
+                        <div class="alert alert-info small"><i class="fas fa-info-circle me-1"></i> This login is restricted to company managers and partners.</div>
+                        
+                        <form method="post" action="{% url 'accounts:login' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="user_type" value="company"> 
+                            <div class="mb-3">
+                                <label for="id_email_company" class="form-label">Email</label>
+                                <input type="email" name="email" id="id_email_company" class="form-control" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="id_password_company" class="form-label">Password</label>
+                                <input type="password" name="password" id="id_password_company" class="form-control" required>
+                            </div>
+
+                            <button type="submit" class="btn btn-dark w-100 btn-lg mt-3">
+                                <i class="fas fa-building me-2"></i> Admin Login
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="tab-pane fade" id="user-signup" role="tabpanel" aria-labelledby="user-signup-tab">
+                        <h5 class="text-primary mb-4">Create New Account</h5>
+                        <form method="POST" action="{% url 'accounts:register' %}">
+                            {% csrf_token %}
+                            
+                            <div class="mb-3">
+                                <label for="id_username_reg" class="form-label">Full Name</label>
+                                <input type="text" name="username" id="id_username_reg" class="form-control" required placeholder="Enter your full name">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_email_reg" class="form-label">Email</label>
+                                <input type="email" name="email" id="id_email_reg" class="form-control" required placeholder="example@domain.com">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_password1_reg" class="form-label">Password</label>
+                                <input type="password" name="password" id="id_password1_reg" class="form-control" required placeholder="Enter a strong password">
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="id_password2_reg" class="form-label">Confirm Password</label>
+                                <input type="password" name="password2" id="id_password2_reg" class="form-control" required placeholder="Re-enter your password">
+                            </div>
+
+                            <button type="submit" class="btn btn-success w-100 btn-lg mt-3">
+                                <i class="fas fa-user-plus me-2"></i> Register
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{% url 'main:home' %}" class="btn btn-outline-secondary w-100 p-3 fw-bold">
+                    <i class="fas fa-arrow-right me-2"></i> Continue as Guest
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+{% endblock extra_js %}
