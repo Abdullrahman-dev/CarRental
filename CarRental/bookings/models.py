@@ -2,8 +2,8 @@ from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-# تأكد أن اسم التطبيق عندك هو vehicles واسم المودل Car
 from vehicles.models import Car 
+from decimal import Decimal
 
 class Booking(models.Model):
     STATUS_CHOICES = [
@@ -30,12 +30,57 @@ class Booking(models.Model):
     start_date = models.DateTimeField(verbose_name="تاريخ الاستلام")
     end_date = models.DateTimeField(verbose_name="تاريخ التسليم")
     
+    # --- تحديث: دعم الخرائط (إلغاء القائمة المحددة) ---
+    pickup_location = models.CharField(
+        max_length=255, 
+        default='Main Office',
+        verbose_name="موقع الاستلام (العنوان)"
+    )
+    dropoff_location = models.CharField(
+        max_length=255, 
+        default='Main Office',
+        verbose_name="موقع التسليم (العنوان)"
+    )
+
+    # حقول جديدة لتخزين الإحداثيات من الخريطة
+    pickup_lat = models.DecimalField(
+        max_digits=9, 
+        decimal_places=6, 
+        null=True, 
+        blank=True, 
+        verbose_name="خط عرض الاستلام"
+    )
+    pickup_lng = models.DecimalField(
+        max_digits=9, 
+        decimal_places=6, 
+        null=True, 
+        blank=True, 
+        verbose_name="خط طول الاستلام"
+    )
+    
+    dropoff_lat = models.DecimalField(
+        max_digits=9, 
+        decimal_places=6, 
+        null=True, 
+        blank=True, 
+        verbose_name="خط عرض التسليم"
+    )
+    dropoff_lng = models.DecimalField(
+        max_digits=9, 
+        decimal_places=6, 
+        null=True, 
+        blank=True, 
+        verbose_name="خط طول التسليم"
+    )
+    # -----------------------------------------------
+
     status = models.CharField(
         max_length=20, 
         choices=STATUS_CHOICES, 
         default='PENDING',
         verbose_name="حالة الحجز"
     )
+
     total_price = models.DecimalField(
         max_digits=10, 
         decimal_places=2, 
@@ -71,8 +116,17 @@ class Booking(models.Model):
         return 0
 
     def save(self, *args, **kwargs):
-        if not self.total_price and self.car and self.start_date and self.end_date:
-            # تأكد أن مودل Car يحتوي على daily_price
-            self.total_price = self.car.daily_price * self.duration_days
+        # حساب السعر دائماً
+        if self.car and self.start_date and self.end_date:
+            base_price = self.car.daily_price * self.duration_days
+            
+            # ميزة One-Way Fee
+            # المقارنة الآن تعتمد على اختلاف العنوان النصي
+            # (يمكن تطويرها لاحقاً لحساب المسافة بين الإحداثيات بالكيلومتر)
+            location_fee = Decimal('0.00')
+            if self.pickup_location.lower().strip() != self.dropoff_location.lower().strip():
+                location_fee = Decimal('150.00') 
+
+            self.total_price = base_price + location_fee
         
         super().save(*args, **kwargs)
