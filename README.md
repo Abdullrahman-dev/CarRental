@@ -27,6 +27,7 @@ The application includes intuitive UI/UX optimized for all screen sizes, support
 - Real dynamic URLs for pages & details
 - Environment variables managed with python-dotenv
 - Git & GitHub version control (daily commits)
+- Rental companys (Add/Delete/Edit) and add cars for his own company
 
 ---
 
