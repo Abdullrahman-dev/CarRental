@@ -25,7 +25,7 @@ def create_booking(request, car_id):
             messages.success(request, "تم حجز السيارة بنجاح! بانتظار الموافقة.")
             return redirect('bookings:booking_success')
 
-            return redirect(reverse('payments:initiate_payment', args=[booking.id]))
+            # return redirect(reverse('payments:initiate_payment', args=[booking.id]))
 
     else:
 
@@ -36,7 +36,7 @@ def create_booking(request, car_id):
         'car': car
     })
 
-# 2. صفحة نجاح الحجز (كود سليم)
+# 2. صفحة نجاح الحجز 
 @login_required
 def booking_success(request):
     return render(request, 'bookings/booking_success.html')
@@ -58,7 +58,7 @@ def reviewer_dashboard(request):
             booking.save()
             messages.success(request, f'Booking #{booking.id} Approved ✅')
             
-            # 2. 🔥 إلغاء الحجوزات المتعارضة تلقائياً (Conflict Resolution)
+            # 2.  إلغاء الحجوزات المتعارضة تلقائياً (Conflict Resolution)
             # نبحث عن أي حجوزات أخرى (Pending) لنفس السيارة تتقاطع مع تواريخ هذا الحجز
             conflicting_bookings = Booking.objects.filter(
                 car=booking.car,

@@ -24,4 +24,7 @@ urlpatterns = [
 
     path('companies/manage/', views.manage_companies, name='manage_companies'),
     path('companies/add/', views.add_company, name='add_company'),
+
+    path('companies/edit/<int:pk>/', views.edit_company, name='edit_company'),
+    path('companies/delete/<int:pk>/', views.delete_company, name='delete_company'),
 ]
