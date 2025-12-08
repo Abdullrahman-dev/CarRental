@@ -3,17 +3,61 @@
 
 {% block content %}
 <div class="container mt-5 pt-5">
-    <h2 class="text-center mb-4">أسطولنا من السيارات المميزة</h2>
+    <h2 class="text-center mb-4">Our Fleet of Featured Cars</h2>
 
     <div class="row justify-content-center mb-5">
-        <div class="col-md-6">
-            <form method="GET" class="d-flex">
-                <input class="form-control me-2 ms-2" type="search" placeholder="ابحث عن اسم السيارة..." aria-label="Search" name="q" value="{{ search_query }}">
-                <button class="btn btn-primary" type="submit">بحث</button>
+        <div class="col-md-10">
+            <form method="GET" class="d-flex align-items-end flex-wrap g-3 bg-light p-3 rounded shadow-sm" style="gap: 15px;">
+                
+                <div class="flex-grow-1" style="min-width: 250px;">
+                    <label for="search-input" class="form-label small text-muted mb-1">Search</label>
+                    <input class="form-control" type="search" id="search-input" 
+                           placeholder="Search by Model, Brand, or Rental Company..." 
+                           aria-label="Search" name="q" value="{{ search_query|default:'' }}">
+                </div>
+
+                <div style="min-width: 150px;">
+                    <label for="transmission-select" class="form-label small text-muted mb-1">Transmission</label>
+                    <select class="form-select" id="transmission-select" name="transmission">
+                        <option value="all">All</option>
+                        {% for value, label in transmission_choices %}
+                            <option value="{{ value }}" {% if selected_transmission == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div style="min-width: 150px;">
+                    <label for="fuel-select" class="form-label small text-muted mb-1">Fuel Type</label>
+                    <select class="form-select" id="fuel-select" name="fuel">
+                        <option value="all">All</option>
+                        {% for value, label in fuel_choices %}
+                            <option value="{{ value }}" {% if selected_fuel == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div style="min-width: 180px;">
+                    <label for="sort-select" class="form-label small text-muted mb-1">Sort By</label>
+                    <select class="form-select" id="sort-select" name="sort_by">
+                        {% for option in sort_options %}
+                            <option value="{{ option.value }}" {% if selected_sort == option.value %}selected{% endif %}>{{ option.label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <button class="btn btn-primary" type="submit" style="min-width: 80px; height: 38px;">Apply</button>
+                </div>
+
+                {% if search_query or selected_transmission or selected_fuel or selected_sort %}
+                <div>
+                    <a href="{% url 'vehicles:car_list' %}" class="btn btn-outline-danger" style="min-width: 80px; height: 38px;">Clear</a>
+                </div>
+                {% endif %}
             </form>
         </div>
     </div>
-
+    
     <div class="row">
         {% for car in cars %}
             <div class="col-md-4 mb-4">
@@ -22,36 +66,38 @@
                         {% if car.image %}
                             <img src="{{ car.image.url }}" class="card-img-top" alt="{{ car.brand }}" style="object-fit: cover; height: 100%; width: 100%;">
                         {% else %}
-                            <span class="text-muted">لا توجد صورة</span>
+                            <span class="text-muted">No Image</span>
                         {% endif %}
                     </div>
                     
                     <div class="card-body">
+                        <p class="small text-secondary mb-1">
+                            Rented by: **{{ car.rental_company.name }}**
+                        </p>
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <!-- ✅ التعديل هنا: استخدمنا brand و model_name بدلاً من name -->
                             <h5 class="card-title fw-bold mb-0">{{ car.brand }} {{ car.model_name }}</h5>
-                            <!-- يمكنك إضافة الموديل هنا إذا كان حقلاً منفصلاً، أو الاعتماد على model_name -->
                         </div>
                         
                         <p class="card-text text-muted small">
                             {{ car.get_transmission_display }} | {{ car.get_fuel_type_display }}
                         </p>
                         
-                        <h4 class="text-primary fw-bold">{{ car.daily_price }} <small class="fs-6 text-muted">ريال / يوم</small></h4>
+                        <h4 class="text-primary fw-bold">{{ car.daily_price }} <small class="fs-6 text-muted">SAR / Day</small></h4>
                     </div>
 
                     <div class="card-footer bg-white border-0 pb-3">
                         {% if car.is_available %}
-                            <a href="{% url 'vehicles:car_detail' car.id %}" class="btn btn-dark w-100">عرض التفاصيل وحجز</a>
+                            <a href="{% url 'vehicles:car_detail' car.id %}" class="btn btn-dark w-100">View Details and Book</a>
                         {% else %}
-                            <button class="btn btn-secondary w-100" disabled>غير متاحة حالياً</button>
+                            <button class="btn btn-secondary w-100" disabled>Currently Unavailable</button>
                         {% endif %}
                     </div>
                 </div>
             </div>
         {% empty %}
             <div class="col-12 text-center py-5">
-                <h3 class="text-muted">لا توجد سيارات متاحة حالياً للعرض.</h3>
+                <h3 class="text-muted">No cars available matching these criteria.</h3>
+                <a href="{% url 'vehicles:car_list' %}" class="btn btn-outline-primary mt-3">View All Cars</a>
             </div>
         {% endfor %}
     </div>

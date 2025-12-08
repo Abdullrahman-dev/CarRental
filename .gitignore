@@ -205,3 +205,13 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+firebase_key.json
+carrental-20b10-firebase-adminsdk-xxxx.json
+serviceAccountKey.json
+firebase-admin-key.json
+firebase-config.json
+carrental-20b10-firebase-adminsdk-fbsvc-7970cfe437.json
+firebase-key.json
+*.json
+CarRental/firebase-key.json

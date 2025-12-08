@@ -2,26 +2,59 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import user_passes_test, login_required
 from .models import Car, RentalCompany, CarReview 
 from .forms import CarForm, RentalCompanyForm, CarReviewForm 
-from django.db.models import Avg
+from django.db.models import Avg, Q 
+from django.contrib import messages
 
 # ---------------------------------------------------------
 # القسم الأول: واجهة المستخدم (للموقع العام)
 # ---------------------------------------------------------
 
 def car_list(request):
-    # جلب كلمة البحث من الرابط (إذا وجدت)
+
     query = request.GET.get('q')
+    transmission_filter = request.GET.get('transmission')
+    fuel_filter = request.GET.get('fuel')
     
+    sort_by = request.GET.get('sort_by')
+
+    cars = Car.objects.all()
+
     if query:
-        # البحث في اسم الشركة أو الموديل
-        cars = Car.objects.filter(brand__icontains=query) | Car.objects.filter(model_name__icontains=query)
-    else:
-        # عرض كل السيارات
-        cars = Car.objects.all()
-    
+        cars = cars.filter(
+            Q(rental_company__name__icontains=query) | 
+            Q(brand__icontains=query) |
+            Q(model_name__icontains=query)
+        ).distinct()
+
+    if transmission_filter and transmission_filter != 'all':
+        cars = cars.filter(transmission=transmission_filter)
+        
+    if fuel_filter and fuel_filter != 'all':
+        cars = cars.filter(fuel_type=fuel_filter)
+        
+    if sort_by == 'price_asc':
+
+        cars = cars.order_by('daily_price')
+    elif sort_by == 'price_desc':
+
+        cars = cars.order_by('-daily_price')
+
     context = {
         'cars': cars,
-        'search_query': query if query else ''
+        'search_query': query if query else '',
+
+        'selected_transmission': transmission_filter,
+        'selected_fuel': fuel_filter,
+        'transmission_choices': Car.TRANSMISSION_CHOICES,
+        'fuel_choices': Car.FUEL_CHOICES,
+
+        'selected_sort': sort_by,
+
+        'sort_options': [
+            {'value': '', 'label': 'Default'},
+            {'value': 'price_asc', 'label': 'Price: Low to High'},
+            {'value': 'price_desc', 'label': 'Price: High to Low'},
+        ]
     }
     return render(request, 'vehicles/car_list.html', context)
 
@@ -77,6 +110,48 @@ def add_car_review(request, car_pk):
 # دالة مساعدة للتحقق: هل المستخدم هو السوبر يوزر (الأدمن)؟
 def is_admin(user):
     return user.is_authenticated and user.is_superuser
+
+
+@user_passes_test(is_admin)
+def edit_company(request, pk):
+    company = get_object_or_404(RentalCompany, pk=pk)
+    
+    if request.method == 'POST':
+        form = RentalCompanyForm(request.POST, instance=company)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Company "{company.name}" has been updated successfully.')
+            return redirect('vehicles:manage_companies')
+    else:
+        form = RentalCompanyForm(instance=company)
+    
+    return render(request, 'vehicles/company_form_edit.html', {
+        'form': form, 
+        'title': f'Edit Company: {company.name}'
+    })
+
+@user_passes_test(is_admin)
+def delete_company(request, pk):
+    company = get_object_or_404(RentalCompany, pk=pk)
+    
+    car_count = company.cars.count()
+    
+    if request.method == 'POST':
+        company_name = company.name 
+        company.delete() 
+        
+        if car_count > 0:
+            messages.success(request, f'Company "{company_name}" and its {car_count} associated cars have been successfully deleted.')
+        else:
+            messages.success(request, f'Company "{company_name}" has been successfully deleted.')
+            
+        return redirect('vehicles:manage_companies')
+    
+    return render(request, 'vehicles/company_confirm_delete.html', {
+        'company': company,
+        'car_count': car_count,
+        'title': f'Confirm Deletion: {company.name}'
+    })
 
 
 @user_passes_test(is_admin)

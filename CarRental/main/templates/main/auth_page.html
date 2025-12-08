@@ -6,7 +6,7 @@
 {% block extra_head %}
 <style>
     :root {
-        --bs-primary: #00BFFF; /* Light Blue / Deep Sky Blue */
+        --bs-primary: #00BFFF; 
         --bs-primary-rgb: 0, 191, 255;
         --bs-light: #f5f7f9;
     }
@@ -23,9 +23,9 @@
         border-bottom: 2px solid var(--bs-primary) !important;
     }
     .nav-link {
-        color: #6c757d;
-        border-bottom: 2px solid transparent;
-        transition: all 0.3s;
+        color: #6c757d !important;
+        border-bottom: 2px solid transparent !important;
+        transition: all 0.3s !important;
     }
     .card-auth {
         max-width: 480px;
@@ -82,7 +82,7 @@
                             <input type="hidden" name="user_type" value="customer"> 
                             <div class="mb-3">
                                 <label for="id_email_user" class="form-label">Email</label>
-                                <input type="email" name="email" id="id_email_user" class="form-control" required>
+                                <input type="text" name="email" id="id_email_user" class="form-control" required>
                             </div>
                             
                             <div class="mb-3">

@@ -3,7 +3,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from vehicles.models import Car 
-from decimal import Decimal
+from datetime import timedelta
 
 class Booking(models.Model):
     STATUS_CHOICES = [
@@ -80,12 +80,14 @@ class Booking(models.Model):
         default='PENDING',
         verbose_name="حالة الحجز"
     )
-
+    
+    # حقل لحساب الأيام
+    duration_days = models.IntegerField(default=0, verbose_name="مدة الحجز بالأيام")
+    
     total_price = models.DecimalField(
         max_digits=10, 
         decimal_places=2, 
-        blank=True, 
-        null=True,
+        default=0.00,
         verbose_name="السعر الإجمالي"
     )
     
@@ -99,6 +101,24 @@ class Booking(models.Model):
 
     def __str__(self):
         return f"Booking #{self.id} - {self.user} - {self.car}"
+    
+    # دالة جديدة لحساب السعر والمدة
+    def calculate_prices(self):
+        if self.start_date and self.end_date:
+            delta = self.end_date - self.start_date
+            
+            # يجب استخدام .days + 1 لتضمين يومي الاستلام والتسليم
+            
+            self.duration_days = max(1, delta.days + 1)
+        else:
+            self.duration_days = 0
+
+        if self.car and self.duration_days > 0:
+            
+            self.total_price = self.car.daily_price * self.duration_days
+        else:
+            self.total_price = 0.00
+
 
     def clean(self):
         if self.start_date and self.end_date:
@@ -108,25 +128,7 @@ class Booking(models.Model):
             if not self.pk and self.start_date < timezone.now():
                 raise ValidationError("لا يمكن الحجز في تاريخ قديم.")
 
-    @property
-    def duration_days(self):
-        if self.start_date and self.end_date:
-            delta = self.end_date - self.start_date
-            return max(delta.days, 1)
-        return 0
-
     def save(self, *args, **kwargs):
-        # حساب السعر دائماً
-        if self.car and self.start_date and self.end_date:
-            base_price = self.car.daily_price * self.duration_days
-            
-            # ميزة One-Way Fee
-            # المقارنة الآن تعتمد على اختلاف العنوان النصي
-            # (يمكن تطويرها لاحقاً لحساب المسافة بين الإحداثيات بالكيلومتر)
-            location_fee = Decimal('0.00')
-            if self.pickup_location.lower().strip() != self.dropoff_location.lower().strip():
-                location_fee = Decimal('150.00') 
-
-            self.total_price = base_price + location_fee
         
+        self.calculate_prices()
         super().save(*args, **kwargs)

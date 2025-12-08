@@ -46,10 +46,12 @@ class BookingForm(forms.ModelForm):
         start = cleaned_data.get("start_date")
         end = cleaned_data.get("end_date")
 
+        # 1. التحقق من منطقية التواريخ
         if start and end and end <= start:
             raise forms.ValidationError("تاريخ النهاية يجب أن يكون بعد تاريخ البداية.")
 
         if self.car_id and start and end:
+            
             overlap = Booking.objects.filter(
                 car_id=self.car_id,
                 status='CONFIRMED'

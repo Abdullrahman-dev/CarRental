@@ -1,13 +1,12 @@
-# bookings/views.py (المحتوى الكامل والمعدل)
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.db.models import Sum, Q
-from django.urls import reverse # 💡 هذا الاستيراد مهم لاستخدام reverse()
+from django.urls import reverse 
 from .models import Booking
 from .forms import BookingForm
 from vehicles.models import Car 
+
 
 
 @login_required(login_url='accounts:login')
@@ -15,22 +14,21 @@ def create_booking(request, car_id):
     car = get_object_or_404(Car, pk=car_id)
 
     if request.method == 'POST':
-        # ✅ نرسل car.id للفورم لكي يتمكن من فحص التواريخ والتحقق من التوفر
+
         form = BookingForm(request.POST, car_id=car.id)
         if form.is_valid():
             booking = form.save(commit=False)
             booking.user = request.user
             booking.car = car
 
-            booking.save() # السعر يحسب تلقائياً في الموديل
+            booking.save() 
             messages.success(request, "تم حجز السيارة بنجاح! بانتظار الموافقة.")
             return redirect('bookings:booking_success')
 
-            # ⬇ يروح إلى صفحة الدفع
-            return redirect(reverse('payments:initiate_payment', args=[booking.id]))
+            # return redirect(reverse('payments:initiate_payment', args=[booking.id]))
 
     else:
-        # ✅ نرسل car.id عند فتح الصفحة لأول مرة أيضاً
+
         form = BookingForm(car_id=car.id)
 
     return render(request, 'bookings/create_booking.html', {
@@ -38,7 +36,7 @@ def create_booking(request, car_id):
         'car': car
     })
 
-# 2. صفحة نجاح الحجز (ستبقى للاستخدام إذا قررت عدم إلغائها)
+# 2. صفحة نجاح الحجز 
 @login_required
 def booking_success(request):
     return render(request, 'bookings/booking_success.html')
@@ -55,13 +53,14 @@ def reviewer_dashboard(request):
         booking = get_object_or_404(Booking, id=booking_id)
         
         if action == 'approve':
-            # 1. الموافقة على الحجز الحالي
+
             booking.status = 'CONFIRMED'
             booking.save()
-            messages.success(request, f'Booking #{booking.id} Approved ✅')
+            messages.success(request, f'Booking #{booking.id} Approved')
             
-            # 2. 🔥 إلغاء الحجوزات المتعارضة تلقائياً (Conflict Resolution)
+            #  إلغاء الحجوزات المتعارضة تلقائيا (Conflict Resolution)
             # نبحث عن أي حجوزات أخرى (Pending) لنفس السيارة تتقاطع مع تواريخ هذا الحجز
+
             conflicting_bookings = Booking.objects.filter(
                 car=booking.car,
                 status='PENDING',
@@ -72,12 +71,12 @@ def reviewer_dashboard(request):
             count = conflicting_bookings.count()
             if count > 0:
                 conflicting_bookings.update(status='CANCELLED')
-                messages.warning(request, f'⚠️ تم إلغاء {count} طلبات معلقة أخرى تلقائياً لمنع التعارض في التواريخ.')
+                messages.warning(request, f'تم إلغاء {count} طلبات معلقة أخرى تلقائياً لمنع التعارض في التواريخ.')
 
         elif action == 'reject':
             booking.status = 'CANCELLED'
             booking.save()
-            messages.warning(request, f'Booking #{booking.id} Rejected ❌')
+            messages.warning(request, f'Booking #{booking.id} Rejected')
         
         return redirect('bookings:reviewer_dashboard')
 

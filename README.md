@@ -27,6 +27,7 @@ The application includes intuitive UI/UX optimized for all screen sizes, support
 - Real dynamic URLs for pages & details
 - Environment variables managed with python-dotenv
 - Git & GitHub version control (daily commits)
+- Rental companys (Add/Delete/Edit) and add cars for his own company
 
 ---
 
@@ -67,10 +68,10 @@ The application includes intuitive UI/UX optimized for all screen sizes, support
 ---
 
 ## Tech Stack
-- **Backend:** Django 5+, Python 3
+- **Backend:** Django, Python
 - **Frontend:** HTML, CSS, Bootstrap
 - **Database:** SQLite (development)
-- **Tools:** Git & GitHub, python-dotenv
+- **Tools:** Git & GitHub
 
 ---
 

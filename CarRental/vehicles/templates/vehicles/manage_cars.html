@@ -1,10 +1,10 @@
-<!-- هذي لوحة إدارة السيارات ياحبايب حق الادمن و الاستاف فقط  -->
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 <div class="container mt-5 pt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>🚗 لوحة إدارة السيارات</h2>
+        <h2>لوحة إدارة السيارات</h2>
         <a href="{% url 'vehicles:add_car' %}" class="btn btn-success">
             + إضافة سيارة جديدة
         </a>

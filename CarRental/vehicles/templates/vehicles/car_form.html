@@ -12,8 +12,6 @@
                 <div class="card-body">
                     <form method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
-                        
-                        <!-- عرض الحقول بشكل منظم -->
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label">الشركة المصنعة</label>
@@ -67,11 +65,6 @@
                                 <div class="col-md-6">
                                     <label class="form-label">شركة التأجير</label>
                                     {{ form.rental_company }} 
-                                </div>
-                                
-                                <div class="col-md-6">
-                                    <label class="form-label">الموديل</label>
-                                    {{ form.model_name }}
                                 </div>
                             </div>
                         </div>
