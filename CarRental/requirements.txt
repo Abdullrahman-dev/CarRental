@@ -110,3 +110,4 @@ uv==0.9.15
 uvicorn==0.38.0
 virtualenv==20.35.4
 whitenoise==6.11.0
+dj-database-url
