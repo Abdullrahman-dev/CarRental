@@ -1,1 +1,1 @@
-web: gunicorn CarRental.wsgi
+web: gunicorn CarRental.wsgi:application
