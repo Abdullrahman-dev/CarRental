@@ -1,2 +1,0 @@
-# The right pakage for payment method :
-pip install paylink-package
