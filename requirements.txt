@@ -81,8 +81,6 @@ pyparsing==3.2.5
 pyproject_hooks==1.2.0
 python-dotenv==1.1.1
 python-multipart==0.0.20
-pywin32==311
-pywin32-ctypes==0.2.3
 readme_renderer==44.0
 referencing==0.37.0
 reportlab==4.4.4
