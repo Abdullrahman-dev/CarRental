@@ -88,6 +88,7 @@
                         <th>Car</th>
                         <th>Company</th>
                         <th>Dates</th>
+                        <th>Locations</th> <!-- العمود المعدل -->
                         <th>Price</th>
                         <th>National ID</th>
                         <th>Driving License</th>
@@ -122,6 +123,31 @@
                                 <span class="text-muted">To:</span> {{ booking.end_date|date:"d M, Y" }}
                             </div>
                         </td>
+                        
+                        <!-- ✅ التعديل هنا: عرض الموقع مباشرة + رابط الخريطة -->
+                        <td>
+                            <div class="small">
+                                <div class="mb-1">
+                                    <span class="text-muted fw-bold">Pick-up:</span><br>
+                                    {{ booking.pickup_location }}
+                                    {% if booking.pickup_lat and booking.pickup_lng %}
+                                        <a href="https://www.google.com/maps/search/?api=1&query={{ booking.pickup_lat }},{{ booking.pickup_lng }}" target="_blank" class="text-decoration-none ms-1" title="Open in Google Maps">
+                                            <i class="fa-solid fa-map-location-dot text-primary"></i>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <span class="text-muted fw-bold">Drop-off:</span><br>
+                                    {{ booking.dropoff_location }}
+                                    {% if booking.dropoff_lat and booking.dropoff_lng %}
+                                        <a href="https://www.google.com/maps/search/?api=1&query={{ booking.dropoff_lat }},{{ booking.dropoff_lng }}" target="_blank" class="text-decoration-none ms-1" title="Open in Google Maps">
+                                            <i class="fa-solid fa-map-location-dot text-danger"></i>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        
                         <td class="fw-bold text-success">${{ booking.total_price }}</td>
                         
                         <td>
@@ -180,7 +206,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="9" class="text-center py-5 text-muted">
+                        <td colspan="11" class="text-center py-5 text-muted">
                             <i class="fa-regular fa-folder-open fa-3x mb-3"></i>
                             <p>No bookings found yet.</p>
                         </td>

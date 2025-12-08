@@ -30,6 +30,50 @@ class Booking(models.Model):
     start_date = models.DateTimeField(verbose_name="تاريخ الاستلام")
     end_date = models.DateTimeField(verbose_name="تاريخ التسليم")
     
+    # --- تحديث: دعم الخرائط (إلغاء القائمة المحددة) ---
+    pickup_location = models.CharField(
+        max_length=255, 
+        default='Main Office',
+        verbose_name="موقع الاستلام (العنوان)"
+    )
+    dropoff_location = models.CharField(
+        max_length=255, 
+        default='Main Office',
+        verbose_name="موقع التسليم (العنوان)"
+    )
+
+    # حقول جديدة لتخزين الإحداثيات من الخريطة
+    pickup_lat = models.DecimalField(
+        max_digits=9, 
+        decimal_places=6, 
+        null=True, 
+        blank=True, 
+        verbose_name="خط عرض الاستلام"
+    )
+    pickup_lng = models.DecimalField(
+        max_digits=9, 
+        decimal_places=6, 
+        null=True, 
+        blank=True, 
+        verbose_name="خط طول الاستلام"
+    )
+    
+    dropoff_lat = models.DecimalField(
+        max_digits=9, 
+        decimal_places=6, 
+        null=True, 
+        blank=True, 
+        verbose_name="خط عرض التسليم"
+    )
+    dropoff_lng = models.DecimalField(
+        max_digits=9, 
+        decimal_places=6, 
+        null=True, 
+        blank=True, 
+        verbose_name="خط طول التسليم"
+    )
+    # -----------------------------------------------
+
     status = models.CharField(
         max_length=20, 
         choices=STATUS_CHOICES, 

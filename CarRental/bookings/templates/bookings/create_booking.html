@@ -2,18 +2,46 @@
 {% load static %}
 
 {% block content %}
+<!-- 1. استدعاء مكتبة الخرائط Leaflet (CSS & JS) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+    /* تنسيق الخريطة */
+    #map { 
+        height: 400px; 
+        width: 100%; 
+        border-radius: 8px; 
+        margin-bottom: 20px; 
+        z-index: 1; 
+        border: 2px solid #dee2e6;
+    }
+    /* تنسيق أزرار اختيار الوضع */
+    .location-btn { 
+        cursor: pointer; 
+        transition: all 0.3s; 
+    }
+    .location-btn:hover {
+        background-color: #f8f9fa;
+    }
+    .location-btn.active { 
+        border: 2px solid #0d6efd !important; 
+        background-color: #e7f1ff !important; 
+        box-shadow: 0 0 10px rgba(13, 110, 253, 0.2);
+    }
+</style>
+
 <div class="container mt-5 pt-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-header bg-dark text-white">
-                    <h4 class="mb-0">Complete Your Booking</h4>
+        <div class="col-md-9">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-dark text-white py-3">
+                    <h4 class="mb-0"><i class="fas fa-map-marked-alt me-2"></i>Complete Your Booking</h4>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     
                     {% if form.non_field_errors %}
                     <div class="alert alert-danger d-flex align-items-center" role="alert">
-                        <!-- أيقونة تنبيه لجذب انتباه المستخدم -->
                         <i class="fa-solid fa-circle-exclamation me-2"></i>
                         <div>
                             {% for error in form.non_field_errors %}
@@ -22,49 +50,117 @@
                         </div>
                     </div>
                     {% endif %}
-                    <!-- نهاية قسم الأخطاء العامة -->
 
-                    <div class="row mb-4">
+                    <!-- تفاصيل السيارة -->
+                    <div class="row mb-4 align-items-center">
                         <div class="col-md-4">
                             {% if car.image %}
-                            <img src="{{ car.image.url }}" class="img-fluid rounded" alt="{{ car.model_name }}">
+                            <img src="{{ car.image.url }}" class="img-fluid rounded shadow-sm" alt="{{ car.model_name }}">
                             {% endif %}
                         </div>
                         <div class="col-md-8">
-                            <h3>{{ car.brand }} {{ car.model_name }}</h3>
-                            <p class="text-dark fw-bold mb-0">
-                                <i class="fas fa-building text-primary me-2"></i> مقدمة من: 
-                                <span class="text-secondary">{{ car.rental_company.name }}</span>
+                            <h3 class="fw-bold">{{ car.brand }} {{ car.model_name }}</h3>
+                            <p class="text-muted mb-1">
+                                <i class="fas fa-building text-primary me-2"></i> Provided by: 
+                                <span class="fw-bold text-dark">{{ car.rental_company.name }}</span>
                             </p>
-                            <h5 class="text-primary">${{ car.daily_price }} / Day</h5>
-                            <p class="text-muted">{{ car.description|truncatewords:20 }}</p>
+                            <h4 class="text-primary fw-bold mt-2">${{ car.daily_price }} <span class="text-muted fs-6">/ Day</span></h4>
                         </div>
                     </div>
                     
-                    <hr>
+                    <hr class="my-4">
 
-                    <form method="POST">
+                    <form method="POST" id="bookingForm">
                         {% csrf_token %}
-                        <div class="row">
+                        
+                        <!-- الحقول المخفية للإحداثيات (يتم تعبئتها بالجافاسكريبت) -->
+                        {{ form.pickup_lat }} {{ form.pickup_lng }}
+                        {{ form.dropoff_lat }} {{ form.dropoff_lng }}
+
+                        <!-- أزرار التحكم بالخريطة -->
+                        <div class="row mb-3">
+                            <div class="col-12 text-center mb-3">
+                                <span class="badge bg-info text-dark px-3 py-2 rounded-pill">
+                                    <i class="fas fa-info-circle me-1"></i> 
+                                    Step 1: Select a mode below, then click on the map
+                                </span>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <div class="p-3 border rounded text-center location-btn active" id="btn-pickup" onclick="setMode('pickup')">
+                                    <i class="fas fa-map-marker-alt text-success fa-2x mb-2"></i>
+                                    <h6 class="fw-bold">Pick-up Location</h6>
+                                    <small class="text-muted d-block" id="pickup-status">Click on map to select</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <div class="p-3 border rounded text-center location-btn" id="btn-dropoff" onclick="setMode('dropoff')">
+                                    <i class="fas fa-flag-checkered text-danger fa-2x mb-2"></i>
+                                    <h6 class="fw-bold">Drop-off Location</h6>
+                                    <small class="text-muted d-block" id="dropoff-status">Click on map to select</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- عنصر الخريطة -->
+                        <div id="map"></div>
+
+                        <!-- الحقول النصية للموقع (للقراءة فقط) -->
+                        <div class="row mb-4">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Pick-up Date</label>
-                                {{ form.start_date }}
-                                <!-- عرض أخطاء الحقل الخاص بتاريخ البدء -->
-                                {% if form.start_date.errors %}
-                                    <div class="text-danger small">{{ form.start_date.errors.0 }}</div>
+                                <label class="form-label fw-bold">Selected Pick-up Location</label>
+                                {{ form.pickup_location }}
+                                <!-- عرض أخطاء الحقل -->
+                                {% if form.pickup_location.errors %}
+                                    <div class="text-danger small mt-1">{{ form.pickup_location.errors.0 }}</div>
                                 {% endif %}
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Return Date</label>
+                                <label class="form-label fw-bold">Selected Drop-off Location</label>
+                                {{ form.dropoff_location }}
+                                <!-- عرض أخطاء الحقل -->
+                                {% if form.dropoff_location.errors %}
+                                    <div class="text-danger small mt-1">{{ form.dropoff_location.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- التواريخ -->
+                        <div class="row mb-4">
+                            <div class="col-12 text-center mb-3">
+                                <span class="badge bg-secondary px-3 py-2 rounded-pill">
+                                    <i class="fas fa-calendar-alt me-1"></i> Step 2: Select Dates
+                                </span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Pick-up Date</label>
+                                {{ form.start_date }}
+                                {% if form.start_date.errors %}
+                                    <div class="text-danger small mt-1">{{ form.start_date.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Return Date</label>
                                 {{ form.end_date }}
-                                <!-- عرض أخطاء الحقل الخاص بتاريخ الانتهاء -->
                                 {% if form.end_date.errors %}
-                                    <div class="text-danger small">{{ form.end_date.errors.0 }}</div>
+                                    <div class="text-danger small mt-1">{{ form.end_date.errors.0 }}</div>
                                 {% endif %}
                             </div>
                         </div>
                         
-                        <button type="submit" class="btn btn-primary w-100 btn-lg mt-3">Confirm Booking</button>
+                        <!-- ملاحظة الرسوم -->
+                        <div class="alert alert-light border-start border-4 border-warning shadow-sm">
+                            <div class="d-flex">
+                                <i class="fas fa-wallet text-warning fa-lg me-3 mt-1"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Fee Notice</h6>
+                                    <p class="mb-0 small text-muted">A standard fee of $150.00 applies if the drop-off location is different from the pick-up location.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 btn-lg mt-3 fw-bold shadow-sm">
+                            <i class="fas fa-check-circle me-2"></i> Confirm Booking
+                        </button>
                     </form>
                 </div>
             </div>
