@@ -74,12 +74,13 @@ WSGI_APPLICATION = 'CarRental.wsgi.application'
 # ------------------------------------------------------------------------------
 
 DATABASES = {
-    'default': dj_database_url.parse(
-        "postgresql://carrental_db_dobt_user:oHMLPn8BjDvUVGiO257SVFNKR7rigZJT@dpg-d4r8dkidbo4c73c7jfbg-a.virginia-postgres.render.com/carrental_db_dobt",
+    'default': dj_database_url.config(
+        env='DATABASE_URL',
         conn_max_age=600,
         ssl_require=True
     )
 }
+
 
 # ------------------------------------------------------------------------------
 # PASSWORD VALIDATION
