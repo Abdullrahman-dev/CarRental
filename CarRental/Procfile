@@ -1,1 +1,1 @@
-web: gunicorn CarRental.wsgi --log-file -
+web: gunicorn CarRental.wsgi
